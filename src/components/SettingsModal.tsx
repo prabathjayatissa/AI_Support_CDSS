@@ -34,19 +34,25 @@ export const SettingsModal = ({ isOpen, onClose, config, onConfigChange }: Setti
 
         <form onSubmit={handleSave} className="p-6 space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-900 mb-2">Setup Instructions</h3>
+            <h3 className="font-semibold text-blue-900 mb-2">LM Studio Setup Instructions</h3>
             <p className="text-sm text-blue-800 mb-2">
-              This application requires a local AI model for transcription and clinical analysis.
+              This application uses a local AI model for clinical analysis.
             </p>
             <p className="text-sm text-blue-800 mb-2">
-              <strong>Recommended setup:</strong>
+              <strong>Setup Steps:</strong>
             </p>
             <ul className="text-sm text-blue-800 space-y-1 ml-4">
-              <li>• Install Ollama or LM Studio locally</li>
-              <li>• Download a medical-focused model (e.g., llama3, mistral)</li>
-              <li>• Start the local server (default: http://localhost:11434)</li>
-              <li>• Configure the endpoint below</li>
+              <li>• Download and install LM Studio from lmstudio.ai</li>
+              <li>• Load a model (e.g., llama-3.2-3b, mistral, qwen2.5)</li>
+              <li>• Go to Developer tab and start the server</li>
+              <li>• Use the endpoint shown in LM Studio (e.g., http://localhost:1234)</li>
+              <li>• Enter the model name exactly as shown in LM Studio</li>
             </ul>
+            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-300 rounded">
+              <p className="text-xs text-yellow-800">
+                <strong>Note:</strong> LM Studio cannot process audio directly. Use the recording for reference, but you'll need to manually type or dictate the conversation content for AI analysis.
+              </p>
+            </div>
           </div>
 
           <div>
@@ -58,11 +64,11 @@ export const SettingsModal = ({ isOpen, onClose, config, onConfigChange }: Setti
               type="url"
               value={config.endpoint}
               onChange={(e) => onConfigChange({ ...config, endpoint: e.target.value })}
-              placeholder="http://localhost:11434"
+              placeholder="http://localhost:1234"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Example: http://localhost:11434 (Ollama) or http://localhost:1234 (LM Studio)
+              For LM Studio: http://localhost:1234 (check the Developer tab for your server URL)
             </p>
           </div>
 

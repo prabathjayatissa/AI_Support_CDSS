@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, FileText, Activity } from 'lucide-react';
+import { Settings, FileText, Activity, Sparkles } from 'lucide-react';
 import { useAudioRecorder } from './hooks/useAudioRecorder';
 import { AIService } from './services/aiService';
 import { RecordingControls } from './components/RecordingControls';
@@ -7,6 +7,7 @@ import { PatientInfo } from './components/PatientInfo';
 import { TranscriptView } from './components/TranscriptView';
 import { ClinicalDecisionView } from './components/ClinicalDecisionView';
 import { SettingsModal } from './components/SettingsModal';
+import { ManualTranscriptEntry } from './components/ManualTranscriptEntry';
 import { AIModelConfig, Transcript, ClinicalDecision } from './types';
 
 function App() {
@@ -20,8 +21,8 @@ function App() {
   const [recordingStartTime, setRecordingStartTime] = useState<Date | null>(null);
 
   const [aiConfig, setAiConfig] = useState<AIModelConfig>({
-    endpoint: 'http://localhost:11434',
-    model: 'llama3',
+    endpoint: 'http://localhost:1234',
+    model: 'llama-3.2-3b-instruct',
     apiKey: '',
   });
 
@@ -120,6 +121,36 @@ function App() {
     const minutes = Math.floor(diff / 60);
     const seconds = diff % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleManualTranscript = (speaker: 'doctor' | 'patient', text: string) => {
+    const newTranscript: Transcript = {
+      id: crypto.randomUUID(),
+      speaker,
+      text,
+      timestamp: new Date(),
+    };
+    setTranscripts(prev => [...prev, newTranscript]);
+  };
+
+  const handleGenerateAnalysis = async () => {
+    if (transcripts.length === 0) {
+      alert('Please add conversation entries before generating analysis.');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const aiService = new AIService(aiConfig);
+      const decision = await aiService.generateClinicalDecision(transcripts);
+      setClinicalDecision(decision);
+      setActiveTab('analysis');
+    } catch (error) {
+      console.error('Error generating analysis:', error);
+      alert('Failed to generate clinical analysis. Please check your AI model configuration.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -237,15 +268,37 @@ function App() {
 
               <div className="p-6">
                 {activeTab === 'transcript' ? (
-                  <TranscriptView transcripts={transcripts} />
+                  <div className="space-y-6">
+                    {!isRecording && (
+                      <ManualTranscriptEntry onAddTranscript={handleManualTranscript} />
+                    )}
+                    <TranscriptView transcripts={transcripts} />
+                    {transcripts.length > 0 && !isProcessing && !isRecording && (
+                      <div className="flex justify-center pt-4">
+                        <button
+                          onClick={handleGenerateAnalysis}
+                          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg"
+                        >
+                          <Sparkles className="w-5 h-5" />
+                          Generate Clinical Analysis
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : clinicalDecision ? (
                   <ClinicalDecisionView decision={clinicalDecision} />
                 ) : (
                   <div className="text-center text-gray-500 py-8">
-                    Complete a recording to see clinical analysis
+                    Add conversation entries and generate analysis to see clinical insights
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {transcripts.length === 0 && !isRecording && (
+            <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+              <ManualTranscriptEntry onAddTranscript={handleManualTranscript} />
             </div>
           )}
         </div>
