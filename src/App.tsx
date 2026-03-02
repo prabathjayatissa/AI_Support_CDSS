@@ -9,8 +9,6 @@ import { ClinicalDecisionView } from './components/ClinicalDecisionView';
 import { SettingsModal } from './components/SettingsModal';
 import { ManualTranscriptEntry } from './components/ManualTranscriptEntry';
 import { AIModelConfig, Transcript, ClinicalDecision } from './types';
-import { AIModelConfig, Transcript, ClinicalDecision } from './types';
-
 
 function App() {
   const [patientName, setPatientName] = useState('');
