@@ -150,7 +150,7 @@ function App() {
       alert('Failed to generate clinical analysis. Please check your AI model configuration.');
     } finally {
       setIsProcessing(false);
-    }
+    } 
   };
 
   return (
